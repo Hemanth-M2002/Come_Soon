@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useComingSoon } from './ComingSoonContext';  // Import the context
+import { useComingSoon } from './ComingSoonContext'; // Import the context
 import Page from './Page';
 
 export default function Soon() {
-  const { comingSoon, setComingSoon } = useComingSoon();
+  const { setComingSoon } = useComingSoon();
   const [email, setEmail] = useState('');
   const [currentImage, setCurrentImage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [liveMode, setLiveMode] = useState(false);
-  const [isDelayed, setIsDelayed] = useState(false); // State to manage delay
-  const [siteLive, setSiteLive] = useState(false);   // State to track live status from the backend
+  const [isDelayed, setIsDelayed] = useState(false);
+  const [siteLive, setSiteLive] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
 
   const images = [
     "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ss-qaRHF3Ry5nvIxxpVPpdjJoJZAz2aVn.webp",
@@ -17,22 +18,41 @@ export default function Soon() {
     "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ss2-tiOvdGC2uSeFBEp6UEk77qNLVqqNka.webp",
   ];
 
-  // Fetch subscriber status to check if any have `isComingSoon: false`
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('subscriberEmail');
+    if (storedEmail) {
+      checkEmailAccess(storedEmail);
+    }
+    
+    // Listen for storage changes
+    const handleStorageChange = (event) => {
+      if (event.key === 'subscriberEmail') {
+        window.location.reload(); // Reload the page if there's a change in subscriberEmail
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   useEffect(() => {
     const checkSiteStatus = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/site-status');
+        const response = await fetch('https://come-soon-server.onrender.com/api/site-status');
         const data = await response.json();
-        if (data.siteLive) {
-          setSiteLive(true);
+        if (data.siteLive !== siteLive) {
+          setSiteLive(data.siteLive);
         }
       } catch (error) {
         console.error('Error fetching site status:', error);
       }
     };
 
-    checkSiteStatus();
-  }, []);
+    const interval = setInterval(checkSiteStatus, 5000); // Check every 5 seconds
+    return () => clearInterval(interval);
+  }, [siteLive]);
 
   const handleNextImage = useCallback(() => {
     setIsTransitioning(true);
@@ -46,7 +66,7 @@ export default function Soon() {
     const queryParams = new URLSearchParams(window.location.search);
     if (queryParams.get('live')) {
       setTimeout(() => {
-        setIsDelayed(true); // Trigger the live mode after delay
+        setIsDelayed(true);
       }, 5000); // 5-second delay before live mode is enabled
     }
   }, []);
@@ -74,26 +94,61 @@ export default function Soon() {
     }
   };
 
+  const checkEmailAccess = async (email) => {
+    try {
+        const response = await fetch('https://come-soon-server.onrender.com/api/check-access', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        const data = await response.json();
+
+        if (!data.hasAccess) {
+            // If access is revoked or the email is no longer valid, remove from localStorage
+            localStorage.removeItem('subscriberEmail');
+            setHasAccess(false);
+            setSiteLive(false);
+            setLiveMode(false);
+            alert('Your access has been revoked or your subscription is no longer valid.');
+        } else {
+            setHasAccess(data.hasAccess);
+            setSiteLive(data.siteLive);
+            if (data.siteLive && data.hasAccess) {
+                setLiveMode(true);
+            }
+        }
+    } catch (error) {
+        console.error('Error checking email access:', error);
+    }
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
     try {
-      const response = await fetch('http://localhost:3001/api/subscribe', {
+      const response = await fetch('https://come-soon-server.onrender.com/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        alert('Subscription successful! Check your email for confirmation.');
-        setEmail('');
-        setComingSoon(false);
-      } else {
-        alert(data.error);
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.error || 'An unknown error occurred.');
+        return;
       }
+
+      alert('Subscription successful! Please reload the page to see the live website.');
+      setEmail('');
+      localStorage.setItem('subscriberEmail', email); // Store email in local storage
+      setComingSoon(false);
+      checkEmailAccess(email); // Check access for this email
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      alert('An error occurred. Please try again later.');
     }
   };
 
@@ -105,12 +160,14 @@ export default function Soon() {
     );
   }
 
+  const showLiveWebsite = liveMode && hasAccess && siteLive;
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="bg-yellow-100 text-center py-1 text-sm">
         {siteLive ? 'The website is live!' : 'Are you ready for our new online store?'}
       </div>
-      {liveMode ? (
+      {showLiveWebsite ? (
         <LiveComponent />
       ) : (
         <div className="flex-grow flex flex-col md:flex-row">

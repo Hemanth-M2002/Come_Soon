@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Menu, Facebook, Twitter, Instagram } from 'lucide-react';
+import { ShoppingCart, Menu, Facebook, Twitter, Instagram, Pointer, PointerIcon, PointerOffIcon } from 'lucide-react';
 import Image1 from './images/image1.jpg';
 import Image2 from './images/image2.jpg';
 import Image3 from './images/image3.jpg';
@@ -14,6 +14,7 @@ import Image11 from './images/image11.jpg';
 import Image12 from './images/image12.jpg';
 import Image13 from './images/image13.jpg';
 import Image14 from './images/image14.jpg';
+import Image15 from './images/bg-image.jpg'
 
 export default function Page() {
   const [hoveredProduct, setHoveredProduct] = useState(null);
@@ -21,49 +22,49 @@ export default function Page() {
   const products = [
     {
       name: 'Leather Jacket',
-      price: '$129.99',
+      price: '₹3,499',
       image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/handsome-man-leather-jacket_144627-3574-pJH94ZeUfJn0Em1adBGJQKn9s5Vaml.jpg',
       hoverImage: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BBGJ-1121-01-SL_1-L0RyPgmlrcSbmQwtiinM4tSSrwZsln.webp',
     },
     {
-      name: 'Summer Outfit',
-      price: '$79.99',
+      name: 'Puma Regular Fit Hoodie',
+      price: '₹1,999',
       image: Image1,
       hoverImage: Image2,
     },
     {
-      name: 'Casual Shirt',
-      price: '$49.99',
+      name: 'Regular Fit Hoodie with Logo Applique',
+      price: '₹999',
       image: Image3,
       hoverImage: Image4,
     },
     {
-      name: 'Denim Set',
-      price: '$89.99',
+      name: `ELEVATED Women's T-Shirt`,
+      price: '₹1,799',
       image: Image5,
       hoverImage: Image6,
     },
     {
-      name: 'Leather Jacket',
-      price: '$129.99',
+      name: 'Puma Shoe - Purple',
+      price: '₹1085',
       image: Image7,
       hoverImage: Image8,
     },
     {
-      name: 'Summer Outfit',
-      price: '$79.99',
+      name: 'Vastrado',
+      price: '₹750',
       image: Image9,
       hoverImage: Image10,
     },
     {
-      name: 'Casual Shirt',
-      price: '$49.99',
+      name: 'Ribbed Fit & Flare Dress ',
+      price: '₹699',
       image: Image11,
       hoverImage: Image12,
     },
     {
-      name: 'Denim Set',
-      price: '$89.99',
+      name: 'CAMPUS SUTRA Zip Jacket',
+      price: '₹1,924',
       image: Image13,
       hoverImage: Image14,
     },
@@ -108,11 +109,18 @@ export default function Page() {
 
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-black">
-          <div className="container px-4 md:px-6">
+        <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-black">
+          <div className="absolute inset-0">
+            <img
+              src={Image15} // Replace this with the URL of your background image
+              alt="Fashion Background"
+              className="object-cover w-full h-full opacity-50" // Adjust opacity for visibility
+            />
+          </div>
+          <div className="container px-4 md:px-6 relative z-10">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-white">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-white">
                   Welcome to StyleHub
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-300 md:text-xl">
@@ -141,11 +149,11 @@ export default function Page() {
               {products.map((product, index) => (
                 <div
                   key={index}
-                  className="rounded-lg overflow-hidden shadow-lg bg-white"
+                  className="rounded-lg overflow-hidden shadow-lg bg-white cursor-pointer"
                   onMouseEnter={() => setHoveredProduct(index)}
                   onMouseLeave={() => setHoveredProduct(null)}
                 >
-                  <div className="relative w-full h-[400px]">
+                  <div className="relative w-full h-[400px] cursor-pointer">
                     <img
                       src={hoveredProduct === index ? product.hoverImage : product.image}
                       alt={product.name}
@@ -173,7 +181,7 @@ export default function Page() {
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
                   Subscribe to Our Newsletter
                 </h2>
-                <p className="mx-auto max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <p className="mx-auto max-w-[600px] text-gray-500 md:text-xl">
                   Stay up to date with the latest trends and exclusive offers.
                 </p>
               </div>
