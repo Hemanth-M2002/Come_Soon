@@ -1,7 +1,8 @@
 # StyleHub Coming Soon Page with Live Mode
 
 ## DEMO
-https://github.com/user-attachments/assets/dd2fd23f-b613-4322-8042-bc0bab0c3e69
+
+https://github.com/user-attachments/assets/aa0cedb4-8b72-4a04-b172-72d66f3558b4
 
 
 ![image](https://github.com/user-attachments/assets/d65e8fcd-8869-4eba-988d-5926e981f5dd)
