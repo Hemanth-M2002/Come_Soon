@@ -5,8 +5,8 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT;  // Fallback port
-const DELAY_SECONDS = 15 * 1000;  // 30 seconds in milliseconds
+const PORT = 3001;  // Fallback port
+const DELAY_SECONDS = 20 * 1000;  // 30 seconds in milliseconds
 
 // Middleware
 app.use(cors());
@@ -35,6 +35,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS // Your app password
     }
 });
+
 
 // API route for subscribing
 app.post('/api/subscribe', async (req, res) => {
@@ -83,7 +84,7 @@ const sendLiveNotificationEmails = async () => {
                 from: `Your Store <${process.env.EMAIL}>`,
                 to: subscriber.email,
                 subject: 'Website Live Notification',
-                text: 'Good news! The website is now live and ready for use. Visit it here: [https://google.com].'
+                text: 'Good news! The website is now live and ready for use. Visit it here: [http://localhost:3000].'
             };
 
             // Send the follow-up email
@@ -128,3 +129,20 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+// API route to check if the site is live
+app.get('/api/site-status', async (req, res) => {
+    try {
+      // Check if any subscribers have isComingSoon set to false
+      const liveSubscribers = await Subscriber.find({ isComingSoon: false });
+      
+      // If any subscribers have isComingSoon: false, the site is live
+      const siteLive = liveSubscribers.length > 0;
+  
+      res.status(200).json({ siteLive });
+    } catch (error) {
+      console.error('Error fetching site status:', error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+  

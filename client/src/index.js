@@ -2,15 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+import { ComingSoonProvider } from './ComingSoonContext';
 import Soon from './Soon';
 import Page from './Page';
 
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    {/* <Page/> */}
-    <Soon/>
-  </React.StrictMode>
+    <ComingSoonProvider>
+      <Soon/>
+    </ComingSoonProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
